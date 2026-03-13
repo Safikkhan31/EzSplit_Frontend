@@ -26,18 +26,22 @@ export default function GroupDetail() {
     );
   }
 
+  const hasUnsettledEntries = group.entries.some((e) => !e.isSettled);
+
   return (
     <div className="page">
       <Navbar
         showBack
         backTo="/"
         rightContent={
-          <button
-            className="settle-btn"
-            onClick={() => navigate(`/group/${groupId}/settlement`)}
-          >
-            ⚖️ Settle Up
-          </button>
+          hasUnsettledEntries ? (
+            <button
+              className="settle-btn"
+              onClick={() => navigate(`/group/${groupId}/settlement`)}
+            >
+              ⚖️ Settle Up
+            </button>
+          ) : null
         }
       />
 

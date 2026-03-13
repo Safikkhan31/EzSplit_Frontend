@@ -2,6 +2,10 @@
 // All IDs are simple strings for readability.
 // Avatar colours are assigned per-user for consistent UI.
 
+export const MOCK_SETTLEMENTS = [];
+// All IDs are simple strings for readability.
+// Avatar colours are assigned per-user for consistent UI.
+
 export const CURRENT_USER_ID = 'u1';
 
 export const MOCK_USERS = [

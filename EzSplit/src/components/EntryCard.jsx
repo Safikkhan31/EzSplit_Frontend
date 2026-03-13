@@ -6,12 +6,17 @@ export default function EntryCard({ entry }) {
   const payer = getUserById(entry.paidBy);
 
   return (
-    <div className="glass-card entry-card">
+    <div className="glass-card entry-card" style={{ opacity: entry.isSettled ? 0.6 : 1 }}>
       <div className={`entry-card-icon ${entry.mode}`}>
         {entry.mode === 'cash' ? '💵' : '💳'}
       </div>
       <div className="entry-card-info">
-        <div className="entry-card-desc">{entry.description}</div>
+        <div className="entry-card-desc">
+          {entry.description}
+          {entry.isSettled && (
+            <span className="badge badge-green" style={{ marginLeft: '8px', fontSize: '0.65rem' }}>Settled</span>
+          )}
+        </div>
         <div className="entry-card-meta">
           Paid by <strong>{payer?.name || 'Unknown'}</strong> · {entry.date} ·{' '}
           <span style={{ textTransform: 'capitalize' }}>{entry.splitType}</span> split

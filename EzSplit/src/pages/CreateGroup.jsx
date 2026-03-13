@@ -29,10 +29,18 @@ export default function CreateGroup() {
     setSelectedMembers((prev) => prev.filter((id) => id !== userId));
   };
 
-  const handleCreate = () => {
-    if (!name.trim()) return;
-    createGroup(name.trim(), description.trim(), selectedMembers);
-    navigate('/');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreate = async () => {
+    if (!name.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await createGroup(name.trim(), description.trim(), selectedMembers);
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      setIsSubmitting(false); // only reset on error, successful navigate unmouts component
+    }
   };
 
   const getUserById = (id) => users.find((u) => u.id === id);
@@ -131,11 +139,11 @@ export default function CreateGroup() {
       <div className="create-group-footer">
         <button
           className="btn btn-primary btn-block"
-          disabled={!name.trim()}
+          disabled={!name.trim() || isSubmitting}
           onClick={handleCreate}
-          style={{ opacity: name.trim() ? 1 : 0.5 }}
+          style={{ opacity: name.trim() && !isSubmitting ? 1 : 0.5 }}
         >
-          Create Group
+          {isSubmitting ? 'Creating...' : 'Create Group'}
         </button>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { computeSettlements } from '../utils/settle';
@@ -23,11 +24,21 @@ export default function Settlement() {
     );
   }
 
-  const transactions = computeSettlements(group.entries, group.members);
+  const activeEntries = group.entries.filter((e) => !e.isSettled);
+  const transactions = computeSettlements(activeEntries, group.members);
 
-  const handleSettle = () => {
-    settleGroup(groupId);
-    navigate(`/group/${groupId}`);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSettle = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await settleGroup(groupId);
+      navigate(`/group/${groupId}`);
+    } catch (err) {
+      console.error(err);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -77,8 +88,13 @@ export default function Settlement() {
           })}
 
           <div className="settlement-footer">
-            <button className="btn btn-success btn-block" onClick={handleSettle}>
-              ✓ Mark as Settled
+            <button 
+              className="btn btn-success btn-block" 
+              onClick={handleSettle}
+              disabled={isSubmitting}
+              style={{ opacity: isSubmitting ? 0.6 : 1 }}
+            >
+              {isSubmitting ? 'Settling...' : '✓ Mark as Settled'}
             </button>
           </div>
         </>

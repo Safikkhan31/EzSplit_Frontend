@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import Navbar from '../components/Navbar';
@@ -30,14 +30,20 @@ export default function SplitExpense() {
     );
   }
 
-  const members = group.members.map((id) => getUserById(id)).filter(Boolean);
+  const members = React.useMemo(() => {
+    return group.members.map((id) => getUserById(id)).filter(Boolean);
+  }, [group.members, getUserById]);
 
   const handleSplitsChange = (newSplits, type) => {
     setSplits(newSplits);
     setSplitType(type);
   };
 
-  const handleAddEntry = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleAddEntry = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const entry = {
       description: description || 'Untitled expense',
       amount: Number(amount),
@@ -47,8 +53,13 @@ export default function SplitExpense() {
       mode,
       date: new Date().toISOString().split('T')[0],
     };
-    addEntry(groupId, entry);
-    navigate(`/group/${groupId}`);
+    try {
+      await addEntry(groupId, entry);
+      navigate(`/group/${groupId}`);
+    } catch (err) {
+      console.error(err);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,8 +82,13 @@ export default function SplitExpense() {
       />
 
       <div className="split-expense-footer">
-        <button className="btn btn-primary btn-block" onClick={handleAddEntry}>
-          ✓ Add Entry
+        <button 
+          className="btn btn-primary btn-block" 
+          onClick={handleAddEntry}
+          disabled={isSubmitting}
+          style={{ opacity: isSubmitting ? 0.6 : 1 }}
+        >
+          {isSubmitting ? 'Adding...' : '✓ Add Entry'}
         </button>
       </div>
     </div>

@@ -6,18 +6,36 @@ import Modal from '../components/Modal';
 import './Profile.css';
 
 export default function Profile() {
-  const { currentUser, users, groups, getUserById, recordPayment } = useApp();
+  const { currentUser, settlements, getUserById, recordPayment } = useApp();
   const [payModal, setPayModal] = useState(null); // { userId, amount }
 
-  const balances = computeUserBalances(groups, currentUser.id);
+  // Derive consolidated balances directly from persistent settlements
+  const balances = settlements
+    .filter((s) => s.from === currentUser.id || s.to === currentUser.id)
+    .map((s) => {
+      const isOwed = s.to === currentUser.id;
+      return {
+        userId: isOwed ? s.from : s.to,
+        amount: isOwed ? s.amount : -s.amount,
+      };
+    });
 
   const totalOwed = balances.filter((b) => b.amount > 0).reduce((s, b) => s + b.amount, 0);
   const totalOwe = balances.filter((b) => b.amount < 0).reduce((s, b) => s + Math.abs(b.amount), 0);
 
-  const handlePay = () => {
-    if (payModal) {
-      recordPayment(currentUser.id, payModal.userId, Math.abs(payModal.amount));
-      setPayModal(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handlePay = async () => {
+    if (payModal && !isSubmitting) {
+      setIsSubmitting(true);
+      try {
+        await recordPayment(currentUser.id, payModal.userId, Math.abs(payModal.amount));
+        setPayModal(null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -100,8 +118,13 @@ export default function Profile() {
             <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setPayModal(null)}>
               Cancel
             </button>
-            <button className="btn btn-primary" style={{ flex: 1 }} onClick={handlePay}>
-              Confirm Payment
+            <button 
+              className="btn btn-primary" 
+              style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }} 
+              onClick={handlePay}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Processing...' : 'Confirm Payment'}
             </button>
           </div>
         </Modal>

@@ -1,11 +1,37 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { MOCK_USERS, MOCK_GROUPS, CURRENT_USER_ID } from '../data/mockData';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { CURRENT_USER_ID } from '../data/mockData';
+import * as api from '../services/api';
+import { computeSettlements } from '../utils/settle';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [users] = useState(MOCK_USERS);
-  const [groups, setGroups] = useState(MOCK_GROUPS);
+  const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [settlements, setSettlements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Initial Data Fetch
+  useEffect(() => {
+    async function initData() {
+      try {
+        const [fetchedUsers, fetchedGroups, fetchedSettlements] = await Promise.all([
+          api.fetchUsers(),
+          api.fetchGroups(),
+          api.fetchSettlements()
+        ]);
+        setUsers(fetchedUsers);
+        setGroups(fetchedGroups);
+        setSettlements(fetchedSettlements);
+      } catch (err) {
+        console.error('Failed to init data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    initData();
+  }, []);
+
   const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
 
   // Get user by ID
@@ -20,48 +46,114 @@ export function AppProvider({ children }) {
     [groups]
   );
 
-  // Create a new group
-  const createGroup = useCallback((name, description, memberIds) => {
-    const newGroup = {
-      id: 'g' + Date.now(),
-      name,
-      description,
-      members: [CURRENT_USER_ID, ...memberIds.filter((id) => id !== CURRENT_USER_ID)],
-      entries: [],
-    };
-    setGroups((prev) => [newGroup, ...prev]);
-    return newGroup;
+  // Create a new group asynchronously
+  const createGroup = useCallback(async (name, description, memberIds) => {
+    try {
+      const newGroup = await api.createGroup(name, description, memberIds);
+      setGroups((prev) => [newGroup, ...prev]);
+      return newGroup;
+    } catch (err) {
+      console.error('Failed to create group:', err);
+      throw err;
+    }
   }, []);
 
-  // Add an entry to a group
-  const addEntry = useCallback((groupId, entry) => {
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.id === groupId
-          ? { ...g, entries: [...g.entries, { ...entry, id: 'e' + Date.now() }] }
-          : g
-      )
-    );
+  // Add an entry asynchronously
+  const addEntry = useCallback(async (groupId, entry) => {
+    try {
+      const newEntry = await api.addEntry(groupId, entry);
+      setGroups((prev) =>
+        prev.map((g) =>
+          g.id === groupId
+            ? { ...g, entries: [...g.entries, newEntry] }
+            : g
+        )
+      );
+      return newEntry;
+    } catch (err) {
+      console.error('Failed to add entry:', err);
+      throw err;
+    }
   }, []);
 
-  // Settle a group (clear all entries)
-  const settleGroup = useCallback((groupId) => {
-    setGroups((prev) =>
-      prev.map((g) => (g.id === groupId ? { ...g, entries: [] } : g))
-    );
-  }, []);
+  // Settle a group asynchronously
+  const settleGroup = useCallback(async (groupId) => {
+    try {
+      const group = groups.find((g) => g.id === groupId);
+      if (!group) return;
 
-  // Record a direct payment (reduces debt in all groups)
-  const recordPayment = useCallback((fromId, toId, amount) => {
-    // For simplicity, we add a "settlement" entry to the first group
-    // In production, this would be a separate API call
-    console.log(`Payment recorded: ${fromId} → ${toId} : ₹${amount}`);
+      const unsettledEntries = group.entries.filter((e) => !e.isSettled);
+      if (unsettledEntries.length === 0) return;
+
+      const entryIdsToMark = unsettledEntries.map((e) => e.id);
+      
+      // Calculate minimum transactions
+      const computedTransactions = computeSettlements(unsettledEntries, group.members);
+      
+      // Persist to "backend"
+      const result = await api.settleGroup(groupId, computedTransactions, entryIdsToMark);
+
+      // 1. Mark group's local entries as settled
+      setGroups((prev) =>
+        prev.map((g) => {
+          if (g.id !== groupId) return g;
+          return {
+            ...g,
+            entries: g.entries.map((req) => 
+              entryIdsToMark.includes(req.id) ? { ...req, isSettled: true } : req
+            )
+          };
+        })
+      );
+
+      // 2. Add the new minimum transactions to the persistent `settlements` pool
+      setSettlements((prev) => {
+        const next = [...prev];
+        result.transactions.forEach((txn) => {
+          // See if there's already a debt from debtor to creditor
+          const existing = next.find(s => s.from === txn.from && s.to === txn.to);
+          if (existing) {
+            existing.amount += txn.amount;
+          } else {
+            next.push({ id: 's' + Date.now() + Math.random(), ...txn });
+          }
+        });
+        return next;
+      });
+
+    } catch (err) {
+      console.error('Failed to settle group:', err);
+      throw err;
+    }
+  }, [groups]);
+
+  // Record a direct payment asynchronously
+  const recordPayment = useCallback(async (fromId, toId, amount) => {
+    try {
+      await api.recordPayment(fromId, toId, amount);
+      console.log(`Async Payment recorded: ${fromId} → ${toId} : ₹${amount}`);
+      
+      setSettlements((prev) => {
+        return prev.map((s) => {
+          if (s.from === fromId && s.to === toId) {
+            return { ...s, amount: Math.max(0, s.amount - amount) };
+          }
+          return s;
+        }).filter(s => s.amount > 0.01);
+      });
+      
+    } catch (err) {
+      console.error('Failed to record payment:', err);
+      throw err;
+    }
   }, []);
 
   const value = {
     users,
     groups,
+    settlements,
     currentUser,
+    loading,
     getUserById,
     getGroupById,
     createGroup,

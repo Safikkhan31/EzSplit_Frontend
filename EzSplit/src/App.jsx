@@ -7,7 +7,19 @@ import SplitExpense from './pages/SplitExpense';
 import Settlement from './pages/Settlement';
 import Profile from './pages/Profile';
 
+import { useApp } from './context/AppContext';
+
 function App() {
+  const { loading } = useApp();
+
+  if (loading) {
+    return (
+      <div className="page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div style={{ color: 'var(--text-dim)', fontSize: '1.2rem' }}>Loading data...</div>
+      </div>
+    );
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
