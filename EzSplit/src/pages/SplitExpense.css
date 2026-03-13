@@ -24,7 +24,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 480px;
+  max-width: 1200px;
   padding: 16px 20px;
   background: linear-gradient(to top, var(--bg) 70%, transparent);
 }

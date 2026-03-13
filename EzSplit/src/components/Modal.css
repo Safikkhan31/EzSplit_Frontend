@@ -12,7 +12,7 @@
 
 .modal-sheet {
   width: 100%;
-  max-width: 480px;
+  max-width: 600px;
   background: var(--surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 24px 20px 32px;
