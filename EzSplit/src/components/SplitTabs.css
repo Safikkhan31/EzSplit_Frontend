@@ -1,0 +1,74 @@
+.split-tabs {
+  margin: 20px 0;
+}
+
+.split-tab-header {
+  display: flex;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 20px;
+  gap: 4px;
+}
+
+.split-tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.split-tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+.split-tab-btn:not(.active):hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.split-tab-content {
+  animation: fadeIn 0.2s ease;
+}
+
+.split-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.split-summary-label {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.split-summary-value {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.split-remaining {
+  text-align: center;
+  padding: 8px;
+  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+}
+.split-remaining.valid {
+  background: var(--green-dim);
+  color: var(--green);
+}
+.split-remaining.invalid {
+  background: var(--red-dim);
+  color: var(--red);
+}

@@ -1,0 +1,131 @@
+.add-payment-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.payment-mode-badge {
+  margin-bottom: 32px;
+}
+
+.payment-amount-display {
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 24px 0 8px;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.payment-amount-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.payment-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.payment-input-wrapper .currency-symbol {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.payment-amount-input {
+  width: 100%;
+  padding: 18px 20px 18px 40px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--surface);
+  border: 2px solid var(--surface-border);
+  border-radius: var(--radius);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.payment-amount-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+.payment-amount-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.payment-desc-input {
+  width: 100%;
+  max-width: 300px;
+  margin: 16px auto 0;
+}
+
+/* Gateway simulation */
+.gateway-card {
+  width: 100%;
+  padding: 28px 24px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.gateway-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.gateway-card-amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent-light);
+  margin: 16px 0;
+}
+
+.gateway-card-info {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.gateway-progress {
+  height: 4px;
+  background: var(--surface-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.gateway-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  animation: progressFill 2s ease forwards;
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.payment-footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  padding: 16px 20px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}

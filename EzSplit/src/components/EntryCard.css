@@ -1,0 +1,56 @@
+.entry-card {
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.25s ease backwards;
+}
+
+.entry-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.entry-card-icon.cash { background: var(--green-dim); }
+.entry-card-icon.online { background: var(--accent-glow); }
+
+.entry-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-card-desc {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry-card-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.entry-card-amount {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.entry-card-total {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.entry-card-split {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}

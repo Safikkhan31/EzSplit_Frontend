@@ -1,0 +1,79 @@
+.settlement-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.settlement-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.settlement-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.settlement-card {
+  padding: 18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.3s ease backwards;
+}
+.settlement-card:nth-child(1) { animation-delay: 0.05s; }
+.settlement-card:nth-child(2) { animation-delay: 0.1s; }
+.settlement-card:nth-child(3) { animation-delay: 0.15s; }
+
+.settlement-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.settlement-arrow-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.settlement-arrow-amount {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent-light);
+}
+
+.settlement-footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  padding: 16px 20px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.settlement-settled {
+  text-align: center;
+  padding: 60px 20px;
+}
+.settlement-settled-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+.settlement-settled-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--green);
+}
+.settlement-settled-sub {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
