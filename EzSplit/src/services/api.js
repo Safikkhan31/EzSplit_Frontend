@@ -1,6 +1,31 @@
 import { CURRENT_USER_ID, MOCK_USERS, MOCK_GROUPS, MOCK_SETTLEMENTS } from '../data/mockData';
 
-const API_BASE_URL = '/api';
+const BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = `${BASE_URL}/api`;
+const AUTH_BASE_URL = `${BASE_URL}/auth`;
+
+/**
+ * Token Management
+ */
+export function setToken(token) {
+  localStorage.setItem('jwt', token);
+}
+
+export function getToken() {
+  return localStorage.getItem('jwt');
+}
+
+export function removeToken() {
+  localStorage.removeItem('jwt');
+}
+
+function getAuthHeaders() {
+  const token = getToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 /**
  * API Service
@@ -18,9 +43,60 @@ const simulateNetwork = (data, shouldFail = false) => {
   });
 };
 
+/**
+ * Auth Endpoints
+ */
+export async function login(username, password) {
+  try {
+    const res = await fetch(`${AUTH_BASE_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) throw new Error('Login failed');
+    return await res.json();
+  } catch (error) {
+    console.warn('API POST /auth/login failed, simulating network.', error);
+    // Simulate successful login
+    return simulateNetwork({ jwt: 'mock-jwt-token-123', userId: CURRENT_USER_ID, name: MOCK_USERS[0].name });
+  }
+}
+
+export async function signup(username, name, password) {
+  try {
+    const res = await fetch(`${AUTH_BASE_URL}/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, name, password }),
+    });
+    if (!res.ok) throw new Error('Signup failed');
+    return await res.text();
+  } catch (error) {
+    console.warn('API POST /auth/signup failed, simulating network.', error);
+    return simulateNetwork('OTP sent to email');
+  }
+}
+
+export async function verifyOtp(username, name, password, otp) {
+  try {
+    const res = await fetch(`${AUTH_BASE_URL}/verify-otp?otp=${otp}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, name, password }),
+    });
+    if (!res.ok) throw new Error('OTP verification failed');
+    return await res.json();
+  } catch (error) {
+    console.warn('API POST /auth/verify-otp failed, simulating network.', error);
+    return simulateNetwork({ id: CURRENT_USER_ID, username, name });
+  }
+}
+
 export async function fetchUsers() {
   try {
-    const res = await fetch(`${API_BASE_URL}/users`);
+    const res = await fetch(`${API_BASE_URL}/users`, {
+      headers: getAuthHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to fetch users');
     return await res.json();
   } catch (error) {
@@ -31,7 +107,9 @@ export async function fetchUsers() {
 
 export async function fetchGroups() {
   try {
-    const res = await fetch(`${API_BASE_URL}/groups`);
+    const res = await fetch(`${API_BASE_URL}/groups`, {
+      headers: getAuthHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to fetch groups');
     return await res.json();
   } catch (error) {
@@ -42,7 +120,9 @@ export async function fetchGroups() {
 
 export async function fetchSettlements() {
   try {
-    const res = await fetch(`${API_BASE_URL}/settlements`);
+    const res = await fetch(`${API_BASE_URL}/settlements`, {
+      headers: getAuthHeaders(),
+    });
     if (!res.ok) throw new Error('Failed to fetch settlements');
     return await res.json();
   } catch (error) {
@@ -61,7 +141,7 @@ export async function createGroup(name, description, memberIds) {
   try {
     const res = await fetch(`${API_BASE_URL}/groups`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error('Failed to create group');
@@ -83,7 +163,7 @@ export async function addEntry(groupId, entryPayload) {
   try {
     const res = await fetch(`${API_BASE_URL}/groups/${groupId}/entries`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(entryPayload),
     });
     if (!res.ok) throw new Error('Failed to add entry');
@@ -99,7 +179,7 @@ export async function settleGroup(groupId, computedTransactions, entryIdsToMark)
   try {
     const res = await fetch(`${API_BASE_URL}/groups/${groupId}/settle`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ transactions: computedTransactions, entryIds: entryIdsToMark }),
     });
     if (!res.ok) throw new Error('Failed to settle group');
@@ -116,7 +196,7 @@ export async function recordPayment(fromId, toId, amount) {
   try {
     const res = await fetch(`${API_BASE_URL}/payments`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error('Failed to record payment');

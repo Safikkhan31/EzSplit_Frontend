@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { computeUserBalances } from '../utils/settle';
 import Navbar from '../components/Navbar';
@@ -6,8 +7,9 @@ import Modal from '../components/Modal';
 import './Profile.css';
 
 export default function Profile() {
-  const { currentUser, settlements, getUserById, recordPayment } = useApp();
+  const { currentUser, settlements, getUserById, recordPayment, logoutUser } = useApp();
   const [payModal, setPayModal] = useState(null); // { userId, amount }
+  const navigate = useNavigate();
 
   // Derive consolidated balances directly from persistent settlements
   const balances = settlements
@@ -104,6 +106,19 @@ export default function Profile() {
           })}
         </div>
       )}
+
+      <div style={{ marginTop: '32px', padding: '0 24px' }}>
+        <button 
+          className="btn btn-outline btn-block" 
+          onClick={() => {
+            logoutUser();
+            navigate('/login');
+          }}
+          style={{ borderColor: 'var(--danger-color)', color: 'var(--danger-color)' }}
+        >
+          Sign Out
+        </button>
+      </div>
 
       {/* Pay Modal */}
       {payModal && (

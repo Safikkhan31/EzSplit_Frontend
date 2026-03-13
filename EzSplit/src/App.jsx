@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import CreateGroup from './pages/CreateGroup';
 import GroupDetail from './pages/GroupDetail';
@@ -6,8 +6,16 @@ import AddPayment from './pages/AddPayment';
 import SplitExpense from './pages/SplitExpense';
 import Settlement from './pages/Settlement';
 import Profile from './pages/Profile';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 import { useApp } from './context/AppContext';
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useApp();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
 
 function App() {
   const { loading } = useApp();
@@ -22,13 +30,18 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/create-group" element={<CreateGroup />} />
-      <Route path="/group/:groupId" element={<GroupDetail />} />
-      <Route path="/group/:groupId/add-payment" element={<AddPayment />} />
-      <Route path="/group/:groupId/split" element={<SplitExpense />} />
-      <Route path="/group/:groupId/settlement" element={<Settlement />} />
-      <Route path="/profile" element={<Profile />} />
+      {/* Public Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* Protected Routes */}
+      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
+      <Route path="/group/:groupId" element={<ProtectedRoute><GroupDetail /></ProtectedRoute>} />
+      <Route path="/group/:groupId/add-payment" element={<ProtectedRoute><AddPayment /></ProtectedRoute>} />
+      <Route path="/group/:groupId/split" element={<ProtectedRoute><SplitExpense /></ProtectedRoute>} />
+      <Route path="/group/:groupId/settlement" element={<ProtectedRoute><Settlement /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
     </Routes>
   );
 }

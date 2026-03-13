@@ -11,9 +11,14 @@ export function AppProvider({ children }) {
   const [settlements, setSettlements] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(!!api.getToken());
+  const [currentUserId, setCurrentUserId] = useState(localStorage.getItem('userId') || null);
+
   // Initial Data Fetch
   useEffect(() => {
     async function initData() {
+      setLoading(true);
       try {
         const [fetchedUsers, fetchedGroups, fetchedSettlements] = await Promise.all([
           api.fetchUsers(),
@@ -29,10 +34,17 @@ export function AppProvider({ children }) {
         setLoading(false);
       }
     }
-    initData();
-  }, []);
 
-  const currentUser = users.find((u) => u.id === CURRENT_USER_ID);
+    if (isAuthenticated) {
+      initData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  // We explicitly cast both to strings to ensure matching since the custom backend returns Long (Number), 
+  // whereas the mock data uses 'u1'.
+  const currentUser = users.find((u) => String(u.id) === String(currentUserId));
 
   // Get user by ID
   const getUserById = useCallback(
@@ -148,7 +160,48 @@ export function AppProvider({ children }) {
     }
   }, []);
 
+  // Auth Methods
+  const loginUser = useCallback(async (username, password) => {
+    try {
+      const { jwt, userId } = await api.login(username, password);
+      api.setToken(jwt);
+      localStorage.setItem('userId', userId);
+      setCurrentUserId(userId);
+      setIsAuthenticated(true);
+      return true;
+    } catch (err) {
+      console.error('Failed to login:', err);
+      throw err;
+    }
+  }, []);
+
+  const registerUser = useCallback(async (username, name, password) => {
+    return await api.signup(username, name, password);
+  }, []);
+
+  const verifyAndLogin = useCallback(async (username, name, password, otp) => {
+    try {
+      // Backend returns User object without JWT in verify, so we just log them in after verifying
+      await api.verifyOtp(username, name, password, otp);
+      return await loginUser(username, password);
+    } catch (err) {
+      console.error('Failed to verify OTP:', err);
+      throw err;
+    }
+  }, [loginUser]);
+
+  const logoutUser = useCallback(() => {
+    api.removeToken();
+    localStorage.removeItem('userId');
+    setIsAuthenticated(false);
+    setCurrentUserId(null);
+    setUsers([]);
+    setGroups([]);
+    setSettlements([]);
+  }, []);
+
   const value = {
+    isAuthenticated,
     users,
     groups,
     settlements,
@@ -160,6 +213,10 @@ export function AppProvider({ children }) {
     addEntry,
     settleGroup,
     recordPayment,
+    loginUser,
+    registerUser,
+    verifyAndLogin,
+    logoutUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
