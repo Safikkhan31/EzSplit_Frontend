@@ -8,7 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { loginUser } = useApp();
   const navigate = useNavigate();
 
@@ -16,13 +16,15 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    
+
     try {
       await loginUser(username, password);
-      // On success, redirect to home page
       navigate('/');
     } catch (err) {
-      setError('Invalid username or password. Please try again.');
+      // err.message is set by parseAuthError() in api.js, so it's always
+      // a human-readable string like "Cannot connect to server" or
+      // "Invalid username or password".
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -33,34 +35,34 @@ export default function Login() {
       <div className="glass-card auth-card">
         <h2 className="auth-title">Welcome Back</h2>
         <p className="auth-subtitle">Log in to manage your shared expenses</p>
-        
+
         {error && <div className="auth-error">{error}</div>}
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Username (Email)</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="e.g. name@example.com"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label>Password</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary btn-block auth-btn"
             disabled={isSubmitting}
             style={{ opacity: isSubmitting ? 0.7 : 1 }}
@@ -68,7 +70,7 @@ export default function Login() {
             {isSubmitting ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           Don't have an account? <Link to="/register">Create one</Link>
         </div>

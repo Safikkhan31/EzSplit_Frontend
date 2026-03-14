@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import './Navbar.css';
+import { useState } from 'react';
 
 export default function Navbar({ title = 'EzSplit', showBack = false, backTo, rightContent }) {
   const navigate = useNavigate();
-  const { currentUser } = useApp();
+  const { currentUser, getRandomColor } = useApp();
+
 
   return (
     <nav className="navbar">
@@ -27,7 +29,7 @@ export default function Navbar({ title = 'EzSplit', showBack = false, backTo, ri
           <button className="navbar-profile" onClick={() => navigate('/profile')}>
             <div
               className="avatar"
-              style={{ background: currentUser.color }}
+              style={{ background: getRandomColor() }}
             >
               {currentUser.name.charAt(0)}
             </div>

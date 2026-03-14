@@ -1,71 +1,471 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Auth Container ── */
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  /* Soft gradient background matching EzSplit theme */
-  background: radial-gradient(circle at top right, rgba(108, 92, 231, 0.1), transparent),
-              radial-gradient(circle at bottom left, rgba(0, 184, 148, 0.1), transparent);
+  background-color: #0A0F1E;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 70% 30%, rgba(0, 229, 160, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 45% at 20% 80%, rgba(59, 130, 246, 0.10) 0%, transparent 65%);
+  font-family: 'DM Sans', sans-serif;
 }
 
+/* ── Glass Card ── */
+.glass-card {
+  background: rgba(26, 34, 53, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(30, 45, 69, 0.9);
+  border-radius: 24px;
+}
+
+/* ── Auth Card ── */
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  padding: 32px 24px;
+  max-width: 440px;
+  padding: 44px 40px 36px;
+  position: relative;
+  overflow: hidden;
+  animation: cardSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* top-left decorative glow strip */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #00E5A0 40%, #3B82F6 80%, transparent 100%);
+  border-radius: 24px 24px 0 0;
+  opacity: 0.8;
+}
+
+/* ── Logo mark (optional auto-injected via ::before of header) ── */
+.auth-card::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 160, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Brand mark above the card heading ── */
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.auth-brand-icon {
+  width: 40px;
+  height: 40px;
+  background: #00E5A0;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #F0F4FF;
+  letter-spacing: -0.3px;
+}
+
+.auth-brand-name span {
+  color: #00E5A0;
+}
+
+/* ── Headings ── */
 .auth-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #F0F4FF;
+  letter-spacing: -0.5px;
   margin-bottom: 8px;
-  text-align: center;
+  line-height: 1.15;
 }
 
 .auth-subtitle {
-  color: var(--text-secondary);
-  text-align: center;
-  margin-bottom: 24px;
-  font-size: 0.95rem;
+  font-size: 14px;
+  color: #8A9BB5;
+  font-weight: 400;
+  margin-bottom: 32px;
+  line-height: 1.5;
 }
 
+/* ── Error Banner ── */
 .auth-error {
-  background: rgba(232, 67, 147, 0.1);
-  color: var(--danger-color);
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  text-align: center;
-  border: 1px solid rgba(232, 67, 147, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 107, 107, 0.10);
+  border: 1px solid rgba(255, 107, 107, 0.30);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #FF6B6B;
+  font-weight: 500;
+  margin-bottom: 24px;
+  animation: shakeX 0.4s ease;
 }
 
+.auth-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.25);
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ── Form ── */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
+/* ── Form Group ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8A9BB5;
+  letter-spacing: 0.02em;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 13px 16px;
+  background: #0A0F1E;
+  border: 1.5px solid #1E2D45;
+  border-radius: 12px;
+  color: #F0F4FF;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #3A4D66;
+  font-weight: 400;
+}
+
+.form-group input:hover {
+  border-color: #2A3A55;
+}
+
+.form-group input:focus {
+  border-color: #00E5A0;
+  box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.12);
+  background: #0D1525;
+}
+
+.form-group input:focus::placeholder {
+  color: #4A6080;
+}
+
+/* autofill override for dark bg */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0D1525 inset;
+  -webkit-text-fill-color: #F0F4FF;
+  border-color: #00E5A0;
+  caret-color: #F0F4FF;
+}
+
+/* ── Forgot password link (optional helper) ── */
+.form-group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-group-row label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8A9BB5;
+}
+
+.form-forgot {
+  font-size: 12px;
+  color: #00E5A0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.form-forgot:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ── Primary Button ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background: #00E5A0;
+  color: #0A0F1E;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #00C98A;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0, 229, 160, 0.30);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ── Auth Button (submit) ── */
 .auth-btn {
-  margin-top: 8px;
-  padding: 12px;
-  font-size: 1rem;
+  margin-top: 6px;
+  position: relative;
+  overflow: hidden;
 }
 
+/* shimmer sweep on hover */
+.auth-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+
+.auth-btn:hover:not(:disabled)::after {
+  left: 160%;
+}
+
+/* loading spinner inside button */
+.auth-btn.loading::before {
+  content: '';
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(10, 15, 30, 0.3);
+  border-top-color: #0A0F1E;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+/* ── OAuth Divider ── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1E2D45;
+}
+
+.auth-divider span {
+  font-size: 12px;
+  color: #4A6080;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ── OAuth Buttons ── */
+.auth-oauth {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.btn-oauth {
+  flex: 1;
+  padding: 11px 16px;
+  background: transparent;
+  border: 1.5px solid #1E2D45;
+  border-radius: 12px;
+  color: #8A9BB5;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.btn-oauth:hover {
+  border-color: #00E5A0;
+  color: #F0F4FF;
+  background: rgba(0, 229, 160, 0.05);
+}
+
+/* ── Footer / Sign-up link ── */
 .auth-footer {
-  margin-top: 24px;
   text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-size: 13px;
+  color: #4A6080;
+  margin-top: 24px;
+  font-weight: 400;
 }
 
 .auth-footer a {
-  color: var(--primary-color);
+  color: #00E5A0;
   text-decoration: none;
-  font-weight: 500;
-  margin-left: 4px;
+  font-weight: 600;
+  transition: opacity 0.15s;
 }
 
 .auth-footer a:hover {
+  opacity: 0.75;
   text-decoration: underline;
+}
+
+/* ── Animations ── */
+@keyframes cardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shakeX {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(6px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 36px 24px 28px;
+    border-radius: 20px;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+
+  .auth-oauth {
+    flex-direction: column;
+  }
 }

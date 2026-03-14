@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { CURRENT_USER_ID } from '../data/mockData';
 import * as api from '../services/api';
 import { computeSettlements } from '../utils/settle';
 
@@ -59,11 +58,12 @@ export function AppProvider({ children }) {
   );
 
   // Create a new group asynchronously
-  const createGroup = useCallback(async (name, description, memberIds) => {
+  const createGroup = useCallback(async (name, description, memberEmails) => {
     try {
-      const newGroup = await api.createGroup(name, description, memberIds);
-      setGroups((prev) => [newGroup, ...prev]);
-      return newGroup;
+      await api.createGroup(name, description, memberEmails);
+      // Backend returns a string, so re-fetch the groups list to get actual data
+      const updatedGroups = await api.fetchGroups();
+      setGroups(updatedGroups);
     } catch (err) {
       console.error('Failed to create group:', err);
       throw err;
@@ -98,10 +98,10 @@ export function AppProvider({ children }) {
       if (unsettledEntries.length === 0) return;
 
       const entryIdsToMark = unsettledEntries.map((e) => e.id);
-      
+
       // Calculate minimum transactions
       const computedTransactions = computeSettlements(unsettledEntries, group.members);
-      
+
       // Persist to "backend"
       const result = await api.settleGroup(groupId, computedTransactions, entryIdsToMark);
 
@@ -111,7 +111,7 @@ export function AppProvider({ children }) {
           if (g.id !== groupId) return g;
           return {
             ...g,
-            entries: g.entries.map((req) => 
+            entries: g.entries.map((req) =>
               entryIdsToMark.includes(req.id) ? { ...req, isSettled: true } : req
             )
           };
@@ -144,7 +144,7 @@ export function AppProvider({ children }) {
     try {
       await api.recordPayment(fromId, toId, amount);
       console.log(`Async Payment recorded: ${fromId} → ${toId} : ₹${amount}`);
-      
+
       setSettlements((prev) => {
         return prev.map((s) => {
           if (s.from === fromId && s.to === toId) {
@@ -153,7 +153,7 @@ export function AppProvider({ children }) {
           return s;
         }).filter(s => s.amount > 0.01);
       });
-      
+
     } catch (err) {
       console.error('Failed to record payment:', err);
       throw err;
@@ -200,6 +200,15 @@ export function AppProvider({ children }) {
     setSettlements([]);
   }, []);
 
+  const getRandomColor = useCallback(() => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }, [])
+
   const value = {
     isAuthenticated,
     users,
@@ -217,7 +226,9 @@ export function AppProvider({ children }) {
     registerUser,
     verifyAndLogin,
     logoutUser,
+    getRandomColor,
   };
+
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

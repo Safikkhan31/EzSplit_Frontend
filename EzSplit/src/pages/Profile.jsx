@@ -108,8 +108,8 @@ export default function Profile() {
       )}
 
       <div style={{ marginTop: '32px', padding: '0 24px' }}>
-        <button 
-          className="btn btn-outline btn-block" 
+        <button
+          className="btn btn-outline btn-block"
           onClick={() => {
             logoutUser();
             navigate('/login');
@@ -133,9 +133,9 @@ export default function Profile() {
             <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setPayModal(null)}>
               Cancel
             </button>
-            <button 
-              className="btn btn-primary" 
-              style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }} 
+            <button
+              className="btn btn-primary"
+              style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }}
               onClick={handlePay}
               disabled={isSubmitting}
             >

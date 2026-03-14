@@ -6,27 +6,40 @@ import './CreateGroup.css';
 
 export default function CreateGroup() {
   const navigate = useNavigate();
-  const { users, currentUser, createGroup } = useApp();
+  const { createGroup } = useApp();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedMembers, setSelectedMembers] = useState([]);
-  const [search, setSearch] = useState('');
+  const [memberEmails, setMemberEmails] = useState([]);
+  const [emailInput, setEmailInput] = useState('');
+  const [emailError, setEmailError] = useState('');
 
-  // Filter users: exclude current user and already-selected, match search
-  const filteredUsers = users.filter(
-    (u) =>
-      u.id !== currentUser.id &&
-      !selectedMembers.includes(u.id) &&
-      u.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const addMember = (userId) => {
-    setSelectedMembers((prev) => [...prev, userId]);
-    setSearch('');
+  const addEmail = () => {
+    const email = emailInput.trim().toLowerCase();
+    if (!email) return;
+    if (!isValidEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    if (memberEmails.includes(email)) {
+      setEmailError('This email is already added');
+      return;
+    }
+    setMemberEmails((prev) => [...prev, email]);
+    setEmailInput('');
+    setEmailError('');
   };
 
-  const removeMember = (userId) => {
-    setSelectedMembers((prev) => prev.filter((id) => id !== userId));
+  const handleEmailKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addEmail();
+    }
+  };
+
+  const removeEmail = (email) => {
+    setMemberEmails((prev) => prev.filter((e) => e !== email));
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,15 +48,13 @@ export default function CreateGroup() {
     if (!name.trim() || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await createGroup(name.trim(), description.trim(), selectedMembers);
+      await createGroup(name.trim(), description.trim(), memberEmails);
       navigate('/');
     } catch (err) {
       console.error(err);
-      setIsSubmitting(false); // only reset on error, successful navigate unmouts component
+      setIsSubmitting(false);
     }
   };
-
-  const getUserById = (id) => users.find((u) => u.id === id);
 
   return (
     <div className="page">
@@ -76,61 +87,55 @@ export default function CreateGroup() {
         </div>
 
         <div className="create-group-field">
-          <label className="input-label">Add Members</label>
-          <input
-            className="input-field"
-            placeholder="Search by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          {search && (
-            <div className="create-group-search-results">
-              {filteredUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="create-group-search-item"
-                  onClick={() => addMember(user.id)}
-                >
-                  <div className="avatar avatar-sm" style={{ background: user.color }}>
-                    {user.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.name}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>{user.email}</div>
-                  </div>
-                </div>
-              ))}
-              {filteredUsers.length === 0 && (
-                <div style={{ padding: 14, textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
-                  No users found
-                </div>
-              )}
-            </div>
+          <label className="input-label">Add Members by Email</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              className="input-field"
+              placeholder="member@example.com"
+              value={emailInput}
+              onChange={(e) => { setEmailInput(e.target.value); setEmailError(''); }}
+              onKeyDown={handleEmailKeyDown}
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={addEmail}
+              style={{ padding: '0 18px', whiteSpace: 'nowrap' }}
+            >
+              Add
+            </button>
+          </div>
+          {emailError && (
+            <div style={{ color: '#e17055', fontSize: '0.82rem', marginTop: 6 }}>{emailError}</div>
           )}
 
-          {selectedMembers.length > 0 && (
+          {memberEmails.length > 0 && (
             <div className="create-group-chips">
-              {selectedMembers.map((id) => {
-                const user = getUserById(id);
-                return (
-                  <div key={id} className="chip">
-                    <span
-                      style={{
-                        width: 18,
-                        height: 18,
-                        borderRadius: '50%',
-                        background: user?.color,
-                        display: 'inline-block',
-                      }}
-                    />
-                    {user?.name}
-                    <button className="chip-remove" onClick={() => removeMember(id)}>
-                      ×
-                    </button>
-                  </div>
-                );
-              })}
+              {memberEmails.map((email) => (
+                <div key={email} className="chip">
+                  <span
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: '50%',
+                      background: '#6c5ce7',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.65rem',
+                      color: '#fff',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {email.charAt(0).toUpperCase()}
+                  </span>
+                  {email}
+                  <button className="chip-remove" onClick={() => removeEmail(email)}>
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </div>

@@ -26,7 +26,7 @@ export default function GroupDetail() {
     );
   }
 
-  const hasUnsettledEntries = group.entries.some((e) => !e.isSettled);
+  const hasUnsettledEntries = (group.entries || []).some((e) => !e.isSettled);
 
   return (
     <div className="page">
@@ -55,7 +55,7 @@ export default function GroupDetail() {
       </div>
 
       <div className="group-detail-members">
-        {group.members.map((memberId) => {
+        {(group.members || []).map((memberId) => {
           const user = getUserById(memberId);
           return user ? (
             <div
@@ -72,7 +72,7 @@ export default function GroupDetail() {
 
       <div className="section-title">Expenses</div>
 
-      {group.entries.length === 0 ? (
+      {(!group.entries || group.entries.length === 0) ? (
         <div className="empty-state">
           <div className="empty-state-icon">💸</div>
           <div className="empty-state-text">
